@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 SHELL ["/bin/bash", "-c"]
 RUN apt-get update
-RUN apt-get install ripgrep gcc make wget git zip unzip python3 python3.12-venv -y
+RUN apt-get install ripgrep gcc make wget curl git zip unzip python3 python3.12-venv -y
 USER ubuntu
 RUN <<EOF 
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
@@ -21,6 +21,6 @@ RUN rm -rf ~/.config/nvim
 RUN rm -rf ~/.local/state/nvim
 RUN rm -rf ~/.local/share/nvim
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
-RUN echo 'map("n", "<leader>ffh", "<cmd>Telescope find_files hidden=true no_ignore=true<cr>")' >> ~/.config/nvim/lua/mappings.lua
-RUN echo $'require("telescope").setup {\n  pickers = {\n    live_grep = {\n      additional_args = function(opts)\n        return {"--hidden", "--no-ignore-vcs"}\n      end\n    },\n  },\n}' >> ~/.config/nvim/init.lua
+COPY plugins/ /home/ubuntu/.config/nvim/lua/plugins/
+COPY configs/ /home/ubuntu/.config/nvim/lua/configs/
 CMD ["/bin/bash"]
