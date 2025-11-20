@@ -21,4 +21,6 @@ RUN rm -rf ~/.config/nvim
 RUN rm -rf ~/.local/state/nvim
 RUN rm -rf ~/.local/share/nvim
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
+RUN echo 'map("n", "<leader>ffh", "<cmd>Telescope find_files hidden=true no_ignore=true<cr>")' >> ~/.config/nvim/lua/mappings.lua
+RUN echo $'require("telescope").setup {\n  pickers = {\n    live_grep = {\n      additional_args = function(opts)\n        return {"--hidden", "--no-ignore-vcs"}\n      end\n    },\n  },\n}' >> ~/.config/nvim/init.lua
 CMD ["/bin/bash"]
