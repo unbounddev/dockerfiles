@@ -1,6 +1,6 @@
 return {
   "stevearc/conform.nvim",
-  event = { "BufReadPre", "BufNewFile", "BufWritePre" },
+  event = "BufWritePre",
   options = {
     formatters_by_ft = {
       lua = { "stylua" },
@@ -20,7 +20,6 @@ return {
       -- These options will be passed to conform.format()
       timeout_ms = 500,
       lsp_fallback = true,
-      async = false,
     },
   },
 }
