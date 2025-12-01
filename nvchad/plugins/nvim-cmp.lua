@@ -4,7 +4,7 @@ return {
     dir = "/projects/nvim-odoo",
     dev = true
   },
-  sources = {
-    name = "odoo"
-  }
+  opts = function(_, opts)
+    table.insert(opts.sources, { name = "odoo" })
+  end,
 }

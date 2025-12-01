@@ -1,0 +1,1 @@
+sudo docker run -it -u 1000 -v ~/projects:/projects -v ~/projects/dockerfiles/nvchad/plugins:/home/ubuntu/.config/nvim/lua/plugins -v ~/projects/dockerfiles/nvchad/configs:/home/ubuntu/.config/nvim/lua/configs nvchad

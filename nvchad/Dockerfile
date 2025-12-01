@@ -21,6 +21,6 @@ RUN rm -rf ~/.config/nvim
 RUN rm -rf ~/.local/state/nvim
 RUN rm -rf ~/.local/share/nvim
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
-COPY plugins/ /home/ubuntu/.config/nvim/lua/plugins/
-COPY configs/ /home/ubuntu/.config/nvim/lua/configs/
+# COPY plugins/ /home/ubuntu/.config/nvim/lua/plugins/
+# COPY configs/ /home/ubuntu/.config/nvim/lua/configs/
 CMD ["/bin/bash"]
