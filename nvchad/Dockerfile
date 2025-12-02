@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 SHELL ["/bin/bash", "-c"]
 RUN apt-get update
-RUN apt-get install ripgrep gcc make wget curl git zip unzip python3 python3.12-venv -y
+RUN apt-get install tmux ripgrep gcc make wget curl git zip unzip python3 python3.12-venv -y
 USER ubuntu
 RUN <<EOF 
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
@@ -23,4 +23,5 @@ RUN rm -rf ~/.local/share/nvim
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
 # COPY plugins/ /home/ubuntu/.config/nvim/lua/plugins/
 # COPY configs/ /home/ubuntu/.config/nvim/lua/configs/
+COPY .tmux.conf /home/ubuntu/.tmux.conf
 CMD ["/bin/bash"]
