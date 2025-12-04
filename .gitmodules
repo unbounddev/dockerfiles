@@ -1,0 +1,4 @@
+[submodule "nvim/nvim/pack/nvim/start/nvim-lspconfig"]
+	path = nvim/nvim/pack/nvim/start/nvim-lspconfig
+	url = https://github.com/neovim/nvim-lspconfig.git
+	branch = master
