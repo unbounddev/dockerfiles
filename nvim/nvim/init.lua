@@ -44,7 +44,7 @@ map("n", "<C-k>", "<cmd>wincmd k<cr>", opts)
 map("n", "<C-j>", "<cmd>wincmd j<cr>", opts)
 map("n", "<C-h>", "<cmd>wincmd h<cr>", opts)
 map("n", "<C-l>", "<cmd>wincmd l<cr>", opts)
-map("n", "<leader>t", "<cmd>split term://bash<cr>", opts)
+map("n", "<leader>h", "<cmd>split term://bash<cr>", opts)
 map("n", "<C-s>", "<cmd>w<cr>")
 map("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", opts)
 map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", opts)
@@ -53,11 +53,11 @@ map("n", "<leader>ffh", "<cmd>Telescope find_files hidden=true no_ignore=true<cr
 map("n", "<leader>tl", "<cmd>TodoLocList<cr>", opts)
 map("n", "<leader>tf", "<cmd>TodoQuickFix<cr>", opts)
 map("n", "<leader>tt", "<cmd>TodoTelescope<cr>", opts)
-map("n", "<leader>d", "<cmd>DiffviewOpen<cr>", opts)
-map("n", "<leader>dc", "<cmd>DiffviewClose<cr>", opts)
+map("n", "<leader>gd", "<cmd>DiffviewOpen<cr>", opts)
+map("n", "<leader>gdc", "<cmd>DiffviewClose<cr>", opts)
 map("n", "<leader>ct", "<cmd>Themery<cr>", opts)
-map("n", "<leader>do", vim.diagnostic.open_float, opts)
-map("n", "<leader>y", function() -- copy relative filepath to clipboard
+map("n", "<leader>ld", vim.diagnostic.open_float, opts)
+map("n", "<leader>yp", function() -- copy relative filepath to clipboard
    vim.fn.setreg("+", vim.fn.expand("%"))
 end)
 -- map("n", "<leader>r", function() -- toggle lsp loclist
@@ -88,30 +88,7 @@ autocmd("TermOpen", {
   end
 })
 
-local function setup_lsp()
-  vim.lsp.enable({
-    -- "lua_ls",
-    "pyright",
-    "ts_ls"
-  })
 
-	autocmd("LspAttach", {
-		group = augroup,
-		callback = function(ev)
-      -- TODO: Research omnifunc
-      -- Set omnifunc for LSP completion
-      -- vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-			local bufopts = { noremap = true, silent = true, buffer = ev.buf }
-			map("n", "grd", vim.lsp.buf.definition, bufopts)
-			map("i", "<C-k>", vim.lsp.completion.get, bufopts) -- open completion menu manually
-			local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
-			local methods = vim.lsp.protocol.Methods
-			if client:supports_method(methods.textDocument_completion) then
-				vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-			end
-		end,
-	})
-end
 
 vim.cmd("colorscheme default")
 
@@ -128,26 +105,87 @@ end
 local function install_parsers()
   local parsers = {
     { 
-      name = "typescript", 
-      cmd = "npm i -g typescript typescript-language-server", 
-      source = "npm" 
+      active = true,
+      configure = function()
+        local command = {"npm", "list", "-g", "--depth=0" }
+        local grep_command = { "grep", "typescript" } 
+        local install_cmd = { "npm", "i", "-g", "typescript", "typescript-language-server" }
+        pcall(vim.system, command, { text = true }, function(obj)
+          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
+            if piped_result.code == 0 then
+              vim.lsp.enable("ts_ls")
+              print("Enabled ts_ls lsp!")
+            else
+              print("Installing ts_ls lsp...")
+              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
+                if install_result.code == 0 then
+                  print("Installed ts_ls lsp!")
+                  vim.lsp.enable("ts_ls")
+                  print("Enabled ts_ls lsp!")
+                else
+                  print("ERROR: Could not install ts_ls lsp")
+                end
+              end))
+            end
+          end))
+        end)
+      end
     },
     {
-      name = "pyright",
-      cmd = "npm i -g pyright",
-      source = "npm"
+      active = true,
+      configure = function()
+        local command = {"npm", "list", "-g", "--depth=0" }
+        local grep_command = { "grep", "pyright" } 
+        local install_cmd = { "npm", "i", "-g", "pyright" }
+        pcall(vim.system, command, { text = true }, function(obj)
+          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
+            if piped_result.code == 0 then
+              vim.lsp.enable("pyright")
+              print("Enabled pyright lsp!")
+            else
+              print("Installing pyright lsp...")
+              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
+                if install_result.code == 0 then
+                  print("Installed pyright lsp!")
+                  vim.lsp.enable("pyright")
+                  print("Enabled pyright lsp!")
+                else
+                  print("ERROR: Could not install pyright lsp")
+                end
+              end))
+            end
+          end))
+        end)
+      end
     }
   }
   
   for index, parser in ipairs(parsers) do
-    -- install parser if it doesn't exist
-    if not check_parser(parser) then
-      vim.fn.system(parser.cmd)
+    if parser.active then
+      parser.configure()
     end
   end
 end
+local function setup_lsp()
+  install_parsers()
 
-install_parsers()
+	autocmd("LspAttach", {
+		group = augroup,
+		callback = function(ev)
+      -- TODO: Research omnifunc
+      -- Set omnifunc for LSP completion
+      -- vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+			local bufopts = { noremap = true, silent = true, buffer = ev.buf }
+			map("n", "lrd", vim.lsp.buf.definition, bufopts)
+			map("i", "<C-k>", vim.lsp.completion.get, bufopts) -- open completion menu manually
+			local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+			local methods = vim.lsp.protocol.Methods
+			if client:supports_method(methods.textDocument_completion) then
+				vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+			end
+		end,
+	})
+end
 setup_lsp()
 
 require("nvim-tree").setup({
