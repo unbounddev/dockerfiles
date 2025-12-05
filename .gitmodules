@@ -2,3 +2,47 @@
 	path = nvim/nvim/pack/nvim/start/nvim-lspconfig
 	url = https://github.com/neovim/nvim-lspconfig.git
 	branch = master
+[submodule "nvim/nvim/pack/nvim/start/nvim-tree.lua"]
+	path = nvim/nvim/pack/nvim/start/nvim-tree.lua
+	url = https://github.com/nvim-tree/nvim-tree.lua.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/plenary.nvim"]
+	path = nvim/nvim/pack/nvim/start/plenary.nvim
+	url = https://github.com/nvim-lua/plenary.nvim.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/telescope.nvim"]
+	path = nvim/nvim/pack/nvim/start/telescope.nvim
+	url = https://github.com/nvim-telescope/telescope.nvim.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/nvim-web-devicons"]
+	path = nvim/nvim/pack/nvim/start/nvim-web-devicons
+	url = https://github.com/nvim-tree/nvim-web-devicons.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/lualine"]
+	path = nvim/nvim/pack/nvim/start/lualine
+	url = https://github.com/nvim-lualine/lualine.nvim.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/treesitter"]
+	path = nvim/nvim/pack/nvim/start/treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter.git
+	branch = master
+[submodule "nvim/nvim/pack/nvim/start/diffview.nvim"]
+	path = nvim/nvim/pack/nvim/start/diffview.nvim
+	url = https://github.com/sindrets/diffview.nvim.git
+	branch = main
+[submodule "nvim/nvim/pack/nvim/start/todo-comments.nvim"]
+	path = nvim/nvim/pack/nvim/start/todo-comments.nvim
+	url = https://github.com/folke/todo-comments.nvim.git
+	branch = main
+[submodule "nvim/nvim/pack/nvim/start/themery.nvim"]
+	path = nvim/nvim/pack/nvim/start/themery.nvim
+	url = https://github.com/zaldih/themery.nvim.git
+	branch = main
+[submodule "nvim/nvim/pack/nvim/start/catppuccin"]
+	path = nvim/nvim/pack/nvim/start/catppuccin
+	url = https://github.com/catppuccin/nvim.git
+	branch = main
+[submodule "nvim/nvim/pack/nvim/start/gitsigns.nvim"]
+	path = nvim/nvim/pack/nvim/start/gitsigns.nvim
+	url = https://github.com/lewis6991/gitsigns.nvim.git
+	branch = main
