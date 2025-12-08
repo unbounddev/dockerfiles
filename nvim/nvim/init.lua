@@ -60,6 +60,8 @@ map("n", "<leader>ld", vim.diagnostic.open_float, opts)
 map("n", "<leader>yp", function() -- copy relative filepath to clipboard
    vim.fn.setreg("+", vim.fn.expand("%"))
 end)
+map("n", "<leader>/", "gcc", { desc = "toggle comment", remap = true })
+map("v", "<leader>/", "gc", { desc = "toggle comment", remap = true })
 -- map("n", "<leader>r", function() -- toggle lsp loclist
 --   local loclist_win = vim.fn.getloclist(0, { winid = 0 }).winid
 --   if loclist_win > 0 then
@@ -87,8 +89,6 @@ autocmd("TermOpen", {
     vim.cmd("resize 7")
   end
 })
-
-
 
 vim.cmd("colorscheme default")
 
@@ -135,6 +135,60 @@ local function install_parsers()
       active = true,
       configure = function()
         local command = {"npm", "list", "-g", "--depth=0" }
+        local grep_command = { "grep", "vscode-langservers-extracted" } 
+        local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
+        pcall(vim.system, command, { text = true }, function(obj)
+          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
+            if piped_result.code == 0 then
+              vim.lsp.enable("html")
+              print("Enabled html lsp!")
+            else
+              print("Installing html lsp...")
+              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
+                if install_result.code == 0 then
+                  print("Installed html lsp!")
+                  vim.lsp.enable("html")
+                  print("Enabled html lsp!")
+                else
+                  print("ERROR: Could not install html lsp")
+                end
+              end))
+            end
+          end))
+        end)
+      end
+    },
+    {
+      active = true,
+      configure = function()
+        local command = {"npm", "list", "-g", "--depth=0" }
+        local grep_command = { "grep", "vscode-langservers-extracted" } 
+        local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
+        pcall(vim.system, command, { text = true }, function(obj)
+          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
+            if piped_result.code == 0 then
+              vim.lsp.enable("cssls")
+              print("Enabled cssls lsp!")
+            else
+              print("Installing cssls lsp...")
+              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
+                if install_result.code == 0 then
+                  print("Installed cssls lsp!")
+                  vim.lsp.enable("cssls")
+                  print("Enabled cssls lsp!")
+                else
+                  print("ERROR: Could not install cssls lsp")
+                end
+              end))
+            end
+          end))
+        end)
+      end
+    },
+    {
+      active = true,
+      configure = function()
+        local command = {"npm", "list", "-g", "--depth=0" }
         local grep_command = { "grep", "pyright" } 
         local install_cmd = { "npm", "i", "-g", "pyright" }
         pcall(vim.system, command, { text = true }, function(obj)
@@ -156,6 +210,65 @@ local function install_parsers()
             end
           end))
         end)
+      end
+    },
+    {
+      active = true,
+      configure = function()
+        local check_cmd = {"which", "lemminx"}
+        local check_dir_cmd = {"test", "-d", "lemminx"}
+        local install_cmd = { "wget", "https://github.com/redhat-developer/vscode-xml/releases/download/latest/lemminx-linux-x86_64.zip" }
+        local unzip_cmd = { "unzip", "lemminx-linux-x86_64.zip", "-d", "lemminx"}
+        local rename_cmd = { "mv", "/home/ubuntu/lemminx/lemminx-linux-x86_64", "/home/ubuntu/lemminx/lemminx"}
+        local add_to_path_cmd = { "export", "PATH=\"$PATH:/home/ubuntu/lemminx\""}
+        -- check if lemminx is installed
+        pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj)
+          if obj.code ~= 0 then
+            pcall(vim.system, check_dir_cmd, { cwd = "/home/ubuntu", text = true }, function(check_dir_res)
+              if check_dir_res.code ~= 0 then
+                -- download lemminx
+                pcall(vim.system, install_cmd, { cwd = "/home/ubuntu", text = true }, function(install_res)
+                  if install_res.code ~= 0 then
+                    print("ERROR: Could not install lemminx lsp")
+                    return
+                  end
+                  -- unzip lemminx
+                  pcall(vim.system, unzip_cmd, { cwd = "/home/ubuntu", text = true }, function(unzip_res)
+                    -- if obj.code ~= 0 then
+                    --   print("ERROR: Could not unzip lemminx zip")
+                    --   return
+                    -- end
+                    -- rename lemminx executable
+                    pcall(vim.system, rename_cmd, { cwd = "/home/ubuntu", text = true }, function(rename_res)
+                      -- if obj.code ~= 0 then
+                      --   print("ERROR: Could not rename lemminx executable")
+                      --   return
+                      -- end
+                      -- add lemminx to path
+                      pcall(vim.system, add_to_path_cmd, { cwd="/home/ubuntu", text = true }, function(add_res)
+                        -- check that lemminx was added to path
+                        pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj) 
+                          if obj.code ~= 0 then
+                            print("ERROR: Lemminx was not added to path, make sre that ~/lemminx was added to path")
+                            return
+                          end
+                          -- enable lemminx
+                          vim.lsp.enable("lemminx")
+                          print("Enabled lemminx lsp!")
+                        end))
+                      end)
+                    end)
+                  end)
+                end)
+                return
+              end
+              print("ERROR: lemminx lsp directory exists but is most likely not in path, add ~/lemminx to PATH")
+            end)
+            return
+          end
+          vim.lsp.enable("lemminx")
+          print("Enabled lemminx lsp!")
+        end))
       end
     }
   }
@@ -279,7 +392,7 @@ cmp.setup.cmdline(':', {
 
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lsps = { "ts_ls", "pyright" }
+local lsps = { "ts_ls", "html", "cssls", "pyright", "lemminx" }
 for index, lsp in ipairs(lsps) do
   vim.lsp.config(lsp, {
     capabilities = capabilities
