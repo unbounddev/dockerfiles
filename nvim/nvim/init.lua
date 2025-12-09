@@ -134,18 +134,19 @@ local function install_parsers()
     {
       active = true,
       configure = function()
-        local command = {"npm", "list", "-g", "--depth=0" } -- FIX: Use "which vscode-html-language-server" instead
-        local grep_command = { "grep", "vscode-langservers-extracted" } 
+        local command = { "which", "vscode-html-language-server" } 
         local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
-        pcall(vim.system, command, { text = true }, function(obj)
-          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
-            if piped_result.code == 0 then
-              vim.lsp.enable("html")
-              print("Enabled html lsp!")
-            else
-              print("Installing html lsp...")
-              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
-                if install_result.code == 0 then
+        pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(obj)
+          if obj.code == 0 then
+            vim.lsp.enable("html")
+            print("Enabled html lsp!")
+          else
+            print("Installing html lsp...")
+            -- install lsp
+            pcall(vim.system, install_cmd, { text = true}, function(install_result)
+              -- verify lsp exists
+              pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(check_res)
+                if check_res.code == 0 then
                   print("Installed html lsp!")
                   vim.lsp.enable("html")
                   print("Enabled html lsp!")
@@ -153,26 +154,28 @@ local function install_parsers()
                   print("ERROR: Could not install html lsp")
                 end
               end))
-            end
-          end))
-        end)
+            end)
+          end
+        end))
       end
     },
     {
       active = true,
       configure = function()
-        local command = {"npm", "list", "-g", "--depth=0" } -- FIX: Use "which vscode-css-language-server" instead
-        local grep_command = { "grep", "vscode-langservers-extracted" } 
+        local command = {"which", "vscode-css-language-server"} 
         local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
-        pcall(vim.system, command, { text = true }, function(obj)
-          pcall(vim.system, grep_command, { text = true, stdin = obj.stdout }, vim.schedule_wrap(function(piped_result)
-            if piped_result.code == 0 then
-              vim.lsp.enable("cssls")
-              print("Enabled cssls lsp!")
-            else
-              print("Installing cssls lsp...")
-              pcall(vim.system, install_cmd, { text = true}, vim.schedule_wrap(function(install_result)
-                if install_result.code == 0 then
+        -- check if lsp is installed
+        pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(obj)
+          if obj.code == 0 then
+            vim.lsp.enable("cssls")
+            print("Enabled cssls lsp!")
+          else
+            print("Installing cssls lsp...")
+            -- install lsp
+            pcall(vim.system, install_cmd, { text = true}, function(install_result)
+              -- verify lsp exists
+              pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(check_res)
+                if check_res.code == 0 then
                   print("Installed cssls lsp!")
                   vim.lsp.enable("cssls")
                   print("Enabled cssls lsp!")
@@ -180,9 +183,9 @@ local function install_parsers()
                   print("ERROR: Could not install cssls lsp")
                 end
               end))
-            end
-          end))
-        end)
+            end)
+          end
+        end))
       end
     },
     {
