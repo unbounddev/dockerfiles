@@ -134,7 +134,7 @@ local function install_parsers()
     {
       active = true,
       configure = function()
-        local command = {"npm", "list", "-g", "--depth=0" }
+        local command = {"npm", "list", "-g", "--depth=0" } -- FIX: Use "which vscode-html-language-server" instead
         local grep_command = { "grep", "vscode-langservers-extracted" } 
         local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
         pcall(vim.system, command, { text = true }, function(obj)
@@ -161,7 +161,7 @@ local function install_parsers()
     {
       active = true,
       configure = function()
-        local command = {"npm", "list", "-g", "--depth=0" }
+        local command = {"npm", "list", "-g", "--depth=0" } -- FIX: Use "which vscode-css-language-server" instead
         local grep_command = { "grep", "vscode-langservers-extracted" } 
         local install_cmd = { "npm", "i", "-g", "vscode-langservers-extracted" }
         pcall(vim.system, command, { text = true }, function(obj)
@@ -220,11 +220,11 @@ local function install_parsers()
         local install_cmd = { "wget", "https://github.com/redhat-developer/vscode-xml/releases/download/latest/lemminx-linux-x86_64.zip" }
         local unzip_cmd = { "unzip", "lemminx-linux-x86_64.zip", "-d", "lemminx"}
         local rename_cmd = { "mv", "/home/ubuntu/lemminx/lemminx-linux-x86_64", "/home/ubuntu/lemminx/lemminx"}
-        local add_to_path_cmd = { "export", "PATH=\"$PATH:/home/ubuntu/lemminx\""}
         -- check if lemminx is installed
         pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj)
           if obj.code ~= 0 then
-            pcall(vim.system, check_dir_cmd, { cwd = "/home/ubuntu", text = true }, function(check_dir_res)
+            -- check if lemminx is downloaded
+            pcall(vim.system, check_dir_cmd, { cwd = "/home/ubuntu", text = true }, vim.schedule_wrap(function(check_dir_res)
               if check_dir_res.code ~= 0 then
                 -- download lemminx
                 pcall(vim.system, install_cmd, { cwd = "/home/ubuntu", text = true }, function(install_res)
@@ -239,31 +239,41 @@ local function install_parsers()
                     --   return
                     -- end
                     -- rename lemminx executable
-                    pcall(vim.system, rename_cmd, { cwd = "/home/ubuntu", text = true }, function(rename_res)
+                    pcall(vim.system, rename_cmd, { cwd = "/home/ubuntu", text = true }, vim.schedule_wrap(function(rename_res)
                       -- if obj.code ~= 0 then
                       --   print("ERROR: Could not rename lemminx executable")
                       --   return
                       -- end
                       -- add lemminx to path
-                      pcall(vim.system, add_to_path_cmd, { cwd="/home/ubuntu", text = true }, function(add_res)
-                        -- check that lemminx was added to path
-                        pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj) 
-                          if obj.code ~= 0 then
-                            print("ERROR: Lemminx was not added to path, make sre that ~/lemminx was added to path")
-                            return
-                          end
-                          -- enable lemminx
-                          vim.lsp.enable("lemminx")
-                          print("Enabled lemminx lsp!")
-                        end))
-                      end)
-                    end)
+                      vim.env.PATH = vim.env.PATH .. ":/home/ubuntu/lemminx"
+                      -- check that lemminx was added to path
+                      pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj) 
+                        if obj.code ~= 0 then
+                          print("ERROR: Lemminx was not added to path, make sure that ~/lemminx was added to path")
+                          return
+                        end
+                        -- enable lemminx
+                        vim.lsp.enable("lemminx")
+                        print("Enabled lemminx lsp!")
+                      end))
+                    end))
                   end)
                 end)
                 return
               end
-              print("ERROR: lemminx lsp directory exists but is most likely not in path, add ~/lemminx to PATH")
-            end)
+              -- add lemminx to path
+              vim.env.PATH = vim.env.PATH .. ":/home/ubuntu/lemminx"
+              -- check that lemminx was added to path
+              pcall(vim.system, check_cmd, { text = true }, vim.schedule_wrap(function(obj) 
+                if obj.code ~= 0 then
+                  print("ERROR: Lemminx was not added to path, make sure that ~/lemminx was added to path")
+                  return
+                end
+                -- enable lemminx
+                vim.lsp.enable("lemminx")
+                print("Enabled lemminx lsp!")
+              end))
+            end))
             return
           end
           vim.lsp.enable("lemminx")
