@@ -218,6 +218,64 @@ local function install_parsers()
     {
       active = true,
       configure = function()
+        local command = {"which", "tailwindcss-language-server"} 
+        local install_cmd = { "npm", "i", "-g", "@tailwindcss/language-server" }
+        -- check if lsp is installed
+        pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(obj)
+          if obj.code == 0 then
+            vim.lsp.enable("tailwindcss")
+            print("Enabled tailwindcss lsp!")
+          else
+            print("Installing tailwindcss lsp...")
+            -- install lsp
+            pcall(vim.system, install_cmd, { text = true}, function(install_result)
+              -- verify lsp exists
+              pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(check_res)
+                if check_res.code == 0 then
+                  print("Installed tailwindcss lsp!")
+                  vim.lsp.enable("tailwindcss")
+                  print("Enabled tailwindcss lsp!")
+                else
+                  print("ERROR: Could not install tailwindcss lsp")
+                end
+              end))
+            end)
+          end
+        end))
+      end
+    },
+    {
+      active = true,
+      configure = function()
+        local command = {"which", "emmet-ls"} 
+        local install_cmd = { "npm", "i", "-g", "emmet-ls" }
+        -- check if lsp is installed
+        pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(obj)
+          if obj.code == 0 then
+            vim.lsp.enable("emmet_ls")
+            print("Enabled emmet_ls lsp!")
+          else
+            print("Installing emmet_ls lsp...")
+            -- install lsp
+            pcall(vim.system, install_cmd, { text = true}, function(install_result)
+              -- verify lsp exists
+              pcall(vim.system, command, { text = true }, vim.schedule_wrap(function(check_res)
+                if check_res.code == 0 then
+                  print("Installed emmet_ls lsp!")
+                  vim.lsp.enable("emmet_ls")
+                  print("Enabled emmet_ls lsp!")
+                else
+                  print("ERROR: Could not install emmet_ls lsp")
+                end
+              end))
+            end)
+          end
+        end))
+      end
+    },
+    {
+      active = true,
+      configure = function()
         local check_cmd = {"which", "lemminx"}
         local check_dir_cmd = {"test", "-d", "lemminx"}
         local install_cmd = { "wget", "https://github.com/redhat-developer/vscode-xml/releases/download/latest/lemminx-linux-x86_64.zip" }
@@ -405,7 +463,7 @@ cmp.setup.cmdline(':', {
 
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lsps = { "ts_ls", "html", "cssls", "pyright", "lemminx" }
+local lsps = { "ts_ls", "html", "cssls", "pyright", "lemminx", "tailwindcss", "emmet_ls" }
 for index, lsp in ipairs(lsps) do
   vim.lsp.config(lsp, {
     capabilities = capabilities
