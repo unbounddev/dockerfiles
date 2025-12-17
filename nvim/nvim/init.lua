@@ -7,7 +7,7 @@ o.tabstop = 2
 o.shiftwidth = 2
 o.softtabstop = 2
 o.expandtab = true
-o.wrap = false
+o.wrap = true
 o.autoread = true
 -- o.list = true -- show hidden characters
 -- look at listchars options
